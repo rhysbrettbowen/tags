@@ -1,0 +1,80 @@
+<body>
+<div style="width:100px;border-style:solid;border-width:1px;">
+<ul id="taglist">
+</ul>
+</div>
+<script src="jquery.js"></script>
+<script>
+var EventHandle = function(){
+  
+}
+
+var Tag = function(name,base){
+  this.name = name;
+  this.base = base || 0;
+  this.score = 0;
+};
+
+var Taglist = function(){
+  var list = [];
+  this.length = 0;
+  this.addTag = function(tag){list.push(tag);this.length=list.length;return tag;};
+  this.sort = function(){list.sort(function(a,b){return b.score + b.base - a.score - a.base;});return this;};
+  this.get = function(i){if(typeof(i)==="undefined"||i>this.length)return list;return list[i];};
+};
+
+var View = function(elem,model){
+  this.elem = elem;
+  this.model = model;
+  this.currentOn = null;
+  var that = this;
+  this.onTime = 0;
+  $(this.elem).find("li").live('mouseover',function(e){
+    var currTime = (new Date()).getTime();
+    that.currentOn = that.modelByName(e.target.textContent);
+    that.onTime = currTime;
+  });
+  $(this.elem).find("li").live('mouseout',function(e){
+    if(that.currentOn)
+      that.currentOn.score += Math.max((new Date()).getTime()-that.onTime,2000);
+    that.currentOn = null;
+  });
+  $(this.elem).find("a").live('click',function(e){
+    e.preventDefault();
+    that.modelByName(e.target.textContent).score+=2000;
+    that.currentOn = null;
+  });
+  $(this.elem).mouseleave(function(e){
+    that.model.sort();
+    that.show();
+  });
+};
+
+View.prototype.modelByName = function(name){
+  for(var i = 0, l = this.model.length; i<l;i++){
+    if(this.model.get(i).name===name){
+      return this.model.get(i);
+    }
+  }
+  return null;
+};
+
+View.prototype.add = function(tag){
+  $(this.elem).append("<li><a href='#'>"+tag.name+"</a></li>");
+};
+
+View.prototype.show = function(){
+  $(this.elem).html("");
+  for(var i=0,l=this.model.length;i<l;i++){
+    this.add(this.model.get(i));
+  }
+};
+
+var taglist = new Taglist();
+for(i = 0; i < 25; i++){
+  taglist.addTag(new Tag("Tag"+i,0));
+}
+var view = new View(document.getElementById("taglist"),taglist);
+view.show();
+</script>
+</body>

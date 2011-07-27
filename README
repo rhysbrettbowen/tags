@@ -1,0 +1,3 @@
+uses JQuery to look at a lie of tags and sort them based on "interest"
+
+interest is worked out based on mouse click and time over the element.
